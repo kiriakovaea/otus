@@ -27,4 +27,3 @@ class TestProductCartPage:
         product_cart_page._simple_click_element(continue_button)
         warning_info = product_cart_page.waiting_element_visible(ProductCartPage.WARNING_INFO)
         assert warning_info.text == 'Warning: Please select a review rating!'
-

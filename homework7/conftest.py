@@ -1,9 +1,7 @@
 import datetime
 import logging
-
 import pytest
 import os
-
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 
