@@ -32,10 +32,7 @@ def get_top3_long_requests(long_requests):
 
 def check_log_file(file):
     with open(file) as file:
-        index = 0
         for line in file:
-            if index == 1000:
-                break
             ip_address = re.search(r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}', line)
             method = re.search(r'] "(GET|POST|PUT|DELETE|HEAD|CONNECT|OPTIONS|TRACE)', line)
             request_time = re.search(r'(?<!\.)\d+\n', line)
@@ -43,7 +40,6 @@ def check_log_file(file):
             request_datetime = re.search(r'\[(.*)] ', line)
             if method is not None:
                 dictionary[method.group(1)] += 1
-                index += 1
             if ip_address:
                 ip_address_dict[ip_address.group()] += 1
             if request_time is not None:
