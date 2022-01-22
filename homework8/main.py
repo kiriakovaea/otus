@@ -4,20 +4,6 @@ import os
 from collections import defaultdict
 import re
 
-dictionary = {'GET': 0,
-              'POST': 0,
-              'PUT': 0,
-              'DELETE': 0,
-              'HEAD': 0,
-              'CONNECT': 0,
-              'OPTIONS': 0,
-              'TRACE': 0,
-              'top_3_ip_address': None,
-              'top_3_long_requests': None}
-
-ip_address_dict = defaultdict(int)
-long_requests = []
-
 
 def get_top3_ip_address(ip_address_dict):
     top3_ip_address = dict(sorted(ip_address_dict.items(), key=lambda x: x[1], reverse=True)[:3])
@@ -30,7 +16,25 @@ def get_top3_long_requests(long_requests):
     return top3_long_requests
 
 
+def get_all_requests(dictionary):
+    all_requests = dictionary['GET'] + dictionary['POST'] + dictionary['PUT'] + dictionary['DELETE'] + dictionary[
+        'HEAD'] + dictionary['CONNECT'] + dictionary['OPTIONS'] + dictionary['TRACE']
+    return all_requests
+
+
 def check_log_file(file):
+    dictionary = {'GET': 0,
+                  'POST': 0,
+                  'PUT': 0,
+                  'DELETE': 0,
+                  'HEAD': 0,
+                  'CONNECT': 0,
+                  'OPTIONS': 0,
+                  'TRACE': 0,
+                  'top_3_ip_address': None,
+                  'top_3_long_requests': None}
+    ip_address_dict = defaultdict(int)
+    long_requests = []
     with open(file) as file:
         for line in file:
             ip_address = re.search(r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}', line)
@@ -58,6 +62,7 @@ def check_log_file(file):
                         'request_time': int(request_time.group()[:-1])
                         }
                 long_requests.append(data)
+        dictionary['all_requests'] = get_all_requests(dictionary)
         top3_ip_address = get_top3_ip_address(ip_address_dict)
         dictionary['top_3_ip_address'] = top3_ip_address
         top3_long_requests = get_top3_long_requests(long_requests)
@@ -77,7 +82,7 @@ if __name__ == '__main__':
     parser.add_argument("--f", dest='file', action='store', help="path to log file")
     args = parser.parse_args()
 
-    if '.log' in args:
+    if '.log' in args.file:
         result = check_log_file(args.file)
         write_result(result, args.file + '_result.json')
     else:
@@ -85,5 +90,5 @@ if __name__ == '__main__':
         files = os.listdir(path)
         logs_files = [file for file in files if file.endswith('.log')]
         for file in logs_files:
-            result = check_log_file(file)
+            result = check_log_file(path + file)
             write_result(result, file + '_result.json')
