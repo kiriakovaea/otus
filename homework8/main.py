@@ -31,14 +31,16 @@ def check_log_file(file):
                   'CONNECT': 0,
                   'OPTIONS': 0,
                   'TRACE': 0,
+                  'PATCH': 0,
                   'top_3_ip_address': None,
-                  'top_3_long_requests': None}
+                  'top_3_long_requests': None,
+                  'all_requests': 0}
     ip_address_dict = defaultdict(int)
     long_requests = []
     with open(file) as file:
         for line in file:
             ip_address = re.search(r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}', line)
-            method = re.search(r'] "(GET|POST|PUT|DELETE|HEAD|CONNECT|OPTIONS|TRACE)', line)
+            method = re.search(r'] "(GET|POST|PUT|DELETE|HEAD|CONNECT|OPTIONS|TRACE|PATCH)', line)
             request_time = re.search(r'(?<!\.)\d+\n', line)
             url = re.search(r' (\/.*) HTTP', line)
             request_datetime = re.search(r'\[(.*)] ', line)
@@ -46,6 +48,7 @@ def check_log_file(file):
                 dictionary[method.group(1)] += 1
             if ip_address:
                 ip_address_dict[ip_address.group()] += 1
+                dictionary['all_requests'] +=1
             if request_time is not None:
                 if url is not None:
                     url = url.group(1)
@@ -62,7 +65,7 @@ def check_log_file(file):
                         'request_time': int(request_time.group()[:-1])
                         }
                 long_requests.append(data)
-        dictionary['all_requests'] = get_all_requests(dictionary)
+        # dictionary['all_requests'] = get_all_requests(dictionary)
         top3_ip_address = get_top3_ip_address(ip_address_dict)
         dictionary['top_3_ip_address'] = top3_ip_address
         top3_long_requests = get_top3_long_requests(long_requests)
